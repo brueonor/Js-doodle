@@ -1,0 +1,116 @@
+// Write JavaScript here and press Ctrl+Enter to execute
+
+class Letter extends React.Component{
+	constructor(props){
+  	super(props);
+  }
+
+	render(){
+  
+  	const letterStyles = {
+    	color: "purple", 
+      fontSize: 40, 
+      display: "inline", 
+      float: "left", 
+      marginRight: "10px"
+    };
+  
+  	return (
+    	<div style={letterStyles}>
+    		{this.props.visible && <p>{this.props.letter}</p>}
+      	{!this.props.visible && <p>_</p>}
+      </div>
+    );
+  }
+}
+
+const initialState = {
+    	word: 'patate',
+      selectedChar: [],
+      input: '',
+      lives: 5
+    };
+
+class App extends React.Component{
+	constructor(props){
+  	super(props);
+    this.handleChange = this.handleChange.bind(this);
+    this.handleClick = this.handleClick.bind(this);
+    this.handleTryAgain = this.handleTryAgain.bind(this);
+    this.state = initialState;
+  }
+  
+ handleChange(event) {
+    this.setState({
+      input: event.target.value
+    });
+  }
+  
+  updateLives(prevState){
+  	if(prevState.lives > 0){
+    	if(!prevState.word.split('').includes(prevState.input))
+      	return prevState.lives - 1;
+      else
+      	return prevState.lives;  
+    }
+    else
+    	return prevState.lives;
+  }
+  
+  handleClick(){
+  	if(this.state.input !== '' && !this.state.selectedChar.includes(this.state.input))
+    	this.setState( (prevState) => ({
+      	selectedChar: [...prevState.selectedChar, this.state.input],
+        lives: this.updateLives(prevState),
+        input: ''
+      }));
+  }
+  
+  handleTryAgain(){
+  	this.setState(initialState)
+  }
+  
+  render()
+  {
+    const buttonStyles = {
+    	display: "inline-block"
+    };
+  
+  	const letters = this.state.word.split('').map(
+    	(letterValue, index) => {
+      	return (
+        <div>
+        	<Letter letter={letterValue} visible={this.state.selectedChar.includes(letterValue)} key={index} />
+        </div>
+        )
+      }
+    ); 
+    
+    const game = (
+    	 <div>
+      	{letters}     
+        <br/><br/><br/><br/>
+        <p>Tried: {this.state.selectedChar.join(", ")}</p>
+        <input value={this.state.input} onChange={this.handleChange} maxLength={1}></input>
+        <button style={buttonStyles} onClick={this.handleClick}>try</button>
+        <p>Lives: {this.state.lives}</p>
+    	</div>
+    );
+    
+		const gameOver =(
+    	<div>
+    	  <h1>Game Over!</h1>
+        <button onClick={this.handleTryAgain}>Try Again</button>
+    	</div>
+    );
+  
+  	return (
+    	<div>
+      	{this.state.lives > 0 && game}
+      	{this.state.lives == 0 && gameOver}
+    	</div>
+    );
+  }
+}
+
+ReactDOM.render(<App />, mountNode);
